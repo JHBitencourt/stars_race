@@ -2,12 +2,16 @@ import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:stars_race/src/app/bloc/provider/bloc_provider.dart';
 import 'package:stars_race/src/app/bloc/stars_race_bloc.dart';
+import 'package:stars_race/src/app/model/bean/repo_info.dart';
+import 'package:stars_race/src/app/model/core/utils/colors.dart';
+import 'package:stars_race/src/app/ui/widgets/card_repo.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print('called');
     return Scaffold(
+      extendBody: true,
       body: _buildBody(context),
       bottomNavigationBar: _buildBottomBar(),
     );
@@ -17,26 +21,21 @@ class HomePage extends StatelessWidget {
     return Stack(
       children: <Widget>[
         _buildBackground(),
-        _buildContentArea(),
+        _buildContentArea(context),
       ],
     );
   }
 
-  Widget _buildContentArea() {
+  Widget _buildContentArea(BuildContext context) {
     return SafeArea(
-        child: CustomScrollView(
-      slivers: <Widget>[
-        SliverList(
-          delegate: SliverChildListDelegate(
-            [
-              _buildHeader(),
-              _buildSubHeader(),
-              _buildWinners(),
-            ],
-          ),
-        )
-      ],
-    ));
+      child: Column(
+        children: <Widget>[
+          _buildHeader(),
+          _buildSubHeader(),
+          Expanded(child: _buildContent(context))
+        ],
+      ),
+    );
   }
 
   Widget _buildContent(BuildContext context) {
@@ -44,6 +43,7 @@ class HomePage extends StatelessWidget {
 
     return StreamBuilder<StarsRaceState>(
       stream: bloc.reposStream,
+      initialData: StarsRaceState.loading(),
       builder: (BuildContext context, AsyncSnapshot<StarsRaceState> snapshot) {
         final state = snapshot.data;
 
@@ -54,11 +54,21 @@ class HomePage extends StatelessWidget {
         if (state.hasError) {
           return Center(
             child: Text('Error :/'),
+//            https://developer.github.com/v3/#rate-limiting
           );
         }
 
-        return Center(
-          child: Text(snapshot.data.winners.toString()),
+        return CustomScrollView(
+          slivers: <Widget>[
+            SliverToBoxAdapter(
+              child: _buildLabel('Winners:'),
+            ),
+            _buildWinners(state.winners),
+            SliverToBoxAdapter(
+              child: _buildLabel('Others:'),
+            ),
+            _buildOthers(state.others)
+          ],
         );
       },
     );
@@ -80,11 +90,11 @@ class HomePage extends StatelessWidget {
     return Container(
       color: Colors.transparent,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text(
-            'Built with S2 and Flutter Web by Julio Bitencourt',
-            style: TextStyle(color: Colors.white),
+          Expanded(
+            child: _buildLabel(
+              'Built with S2 and Flutter Web by Julio Bitencourt',
+            ),
           ),
         ],
       ),
@@ -97,27 +107,30 @@ class HomePage extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [const Color(0XFF107dac), const Color(0XFF71c7ec)],
+          colors: [darkBlue, lightBlue],
         ),
       ),
     );
   }
 
   Widget _buildHeader() {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: Text(
-            'The live stars race',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: 40,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              'The live stars race',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 40,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -138,29 +151,68 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildWinners() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: <Widget>[
-        Expanded(child: Container()),
-        Card(
-          child: Container(
-            constraints: BoxConstraints.loose(Size(160, 100)),
+  Widget _buildWinners(List<RepoInfo> winners) {
+    return SliverToBoxAdapter(
+      child: Center(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              CardRepo(
+                position: 3,
+                constraints: BoxConstraints.loose(Size(160, 140)),
+                repoInfo: winners[2],
+              ),
+              CardRepo(
+                position: 1,
+                constraints: BoxConstraints.loose(Size(160, 160)),
+                repoInfo: winners[0],
+              ),
+              CardRepo(
+                position: 2,
+                constraints: BoxConstraints.loose(Size(160, 150)),
+                repoInfo: winners[1],
+              ),
+            ],
           ),
         ),
-        Card(
-          child: Container(
-            constraints: BoxConstraints.loose(Size(160, 140)),
-          ),
-        ),
-        Card(
-          child: Container(
-            constraints: BoxConstraints.loose(Size(160, 120)),
-          ),
-        ),
-        Expanded(child: Container()),
-      ],
+      ),
     );
   }
 
+  Widget _buildOthers(List<RepoInfo> others) {
+    final cards = <CardRepo>[];
+    for (var i = 0; i < others.length; i++) {
+      cards.add(
+        CardRepo(
+          position: i + 4,
+          repoInfo: others[i],
+        ),
+      );
+    }
+
+    return SliverGrid(
+      delegate: SliverChildListDelegate(cards),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisSpacing: 2,
+        mainAxisSpacing: 2,
+        childAspectRatio: 1,
+        crossAxisCount: 3,
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+            color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
 }

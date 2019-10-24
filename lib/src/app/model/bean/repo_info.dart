@@ -12,6 +12,7 @@ class RepoInfo {
   @JsonKey(name: 'html_url')
   final String url;
 
+  final String name;
   final String description;
   final String homepage;
   final String language;
@@ -19,8 +20,8 @@ class RepoInfo {
   @JsonKey(name: 'stargazers_count')
   final int stargazers;
 
-  RepoInfo(this.fullName, this.url, this.description, this.homepage,
-      this.language, this.stargazers);
+  RepoInfo({this.fullName, this.name, this.url, this.description, this.homepage,
+    this.language, this.stargazers});
 
   factory RepoInfo.fromJson(Map<String, dynamic> json) => _$RepoInfoFromJson(json);
   Map<String, dynamic> toJson() => _$RepoInfoToJson(this);

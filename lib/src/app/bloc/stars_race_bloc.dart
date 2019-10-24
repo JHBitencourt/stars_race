@@ -17,11 +17,10 @@ const techs = const {
 };
 
 class StarsRaceBloc extends BlocBase {
-
   final repoApi = RepoApi();
 
-  final _reposController = BehaviorSubject<StarsRaceState>.seeded(
-      StarsRaceState.loading());
+  final _reposController =
+      BehaviorSubject<StarsRaceState>.seeded(StarsRaceState.loading());
 
   Stream<StarsRaceState> get reposStream => _reposController.stream;
 
@@ -30,17 +29,20 @@ class StarsRaceBloc extends BlocBase {
       _reposController?.sink?.add(StarsRaceState.loading());
 
       final repoInfos = <RepoInfo>[];
-      for(var entry in techs.entries) {
+      for (var entry in techs.entries) {
         final repoInfo = await repoApi.getRepoInfo(entry.key, entry.value);
         repoInfos.add(repoInfo);
       }
 
       repoInfos.sort((a, b) => b.stargazers.compareTo(a.stargazers));
-      _reposController?.sink?.add(StarsRaceState.loaded(
-        winners: repoInfos.take(3).toList(),
-        others: repoInfos.skip(3).toList()
-      ));
-    } catch (e) {
+      _reposController?.sink?.add(
+        StarsRaceState.loaded(
+          winners: repoInfos.take(3).toList(),
+          others: repoInfos.skip(3).toList(),
+        ),
+      );
+    } catch (e, s) {
+      print(s);
       _reposController?.sink?.add(StarsRaceState.error());
     }
   }
@@ -74,6 +76,9 @@ class StarsRaceState {
 
   factory StarsRaceState.loaded(
       {List<RepoInfo> winners, List<RepoInfo> others}) {
-    return StarsRaceState(winners: winners, others: others,);
+    return StarsRaceState(
+      winners: winners,
+      others: others,
+    );
   }
 }

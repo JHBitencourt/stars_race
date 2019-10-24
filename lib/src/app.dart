@@ -7,25 +7,25 @@ import 'app/ui/pages/home_page.dart';
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<StarsRaceBloc>(
-      bloc: StarsRaceBloc(),
-      child: MaterialApp(
-        title: 'Stars Race',
-        theme:
-            ThemeData(primarySwatch: Colors.blue, fontFamily: 'MaxwellRegular'),
-        onGenerateRoute: _routes,
-      ),
+    return MaterialApp(
+      title: 'Stars Race',
+      theme:
+      ThemeData(primarySwatch: Colors.blue, fontFamily: 'MaxwellRegular'),
+      onGenerateRoute: _routes,
     );
   }
 
   Route _routes(RouteSettings settings) {
     if (settings.isInitialRoute) {
+      final bloc = StarsRaceBloc();
+      bloc.fetchRepos();
+
       return MaterialPageRoute(
         builder: (context) {
-          final bloc = BlocProvider.of<StarsRaceBloc>(context);
-          bloc.fetchRepos();
-
-          return HomePage();
+          return BlocProvider<StarsRaceBloc>(
+            bloc: bloc,
+            child: HomePage(),
+          );
         },
       );
     }
