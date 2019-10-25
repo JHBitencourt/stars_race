@@ -1,5 +1,6 @@
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:stars_race/src/app/bloc/provider/bloc_provider.dart';
 import 'package:stars_race/src/app/bloc/stars_race_bloc.dart';
 import 'package:stars_race/src/app/model/bean/repo_info.dart';
@@ -67,7 +68,7 @@ class HomePage extends StatelessWidget {
             SliverToBoxAdapter(
               child: _buildLabel('Others:'),
             ),
-            _buildOthers(state.others)
+            _buildOthers(state.others),
           ],
         );
       },
@@ -192,16 +193,38 @@ class HomePage extends StatelessWidget {
         ),
       );
     }
+    return SliverLayoutBuilder(
+      builder: (BuildContext context, SliverConstraints constraints) {
+        final boxConstraints = constraints.asBoxConstraints();
+        final width = boxConstraints.maxWidth;
 
-    return SliverGrid(
-      delegate: SliverChildListDelegate(cards),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisSpacing: 2,
-        mainAxisSpacing: 2,
-        childAspectRatio: 1,
-        crossAxisCount: 3,
-      ),
+        final crossAxisCount = _crossAxisBasedOnWidth(width);
+
+        double padding = 8;
+        if(width > 816) {
+          padding += (width - 816) / 2;
+        }
+        return SliverPadding(
+          padding: EdgeInsets.only(left: padding, right: padding),
+          sliver: SliverGrid(
+            delegate: SliverChildListDelegate(cards),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
+              childAspectRatio: 1,
+              crossAxisCount: crossAxisCount,
+            ),
+          ),
+        );
+      },
     );
+  }
+
+  int _crossAxisBasedOnWidth(double width) {
+    if(width < 200) return 2;
+    if(width < 400) return 3;
+    if(width < 600) return 4;
+    return 5;
   }
 
   Widget _buildLabel(String text) {
@@ -215,4 +238,5 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
 }
