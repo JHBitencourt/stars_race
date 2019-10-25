@@ -1,45 +1,53 @@
 import 'package:flare_flutter/flare_actor.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:stars_race/src/app/bloc/provider/bloc_provider.dart';
 import 'package:stars_race/src/app/bloc/stars_race_bloc.dart';
 import 'package:stars_race/src/app/model/bean/repo_info.dart';
 import 'package:stars_race/src/app/model/core/utils/colors.dart';
 import 'package:stars_race/src/app/ui/widgets/card_repo.dart';
+import 'package:stars_race/src/app/ui/widgets/utils/custom_icons.dart';
+import 'package:stars_race/src/app/ui/widgets/utils/size_config.dart';
+import 'package:stars_race/src/app/ui/widgets/utils/url_utils.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    print('called');
+    final sizeConfig = SizeConfig.of(context);
+
     return Scaffold(
       extendBody: true,
-      body: _buildBody(context),
-      bottomNavigationBar: _buildBottomBar(),
+      body: _buildBody(context, sizeConfig),
+      bottomNavigationBar: _buildBottomBar(sizeConfig),
     );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, SizeConfig sizeConfig) {
     return Stack(
       children: <Widget>[
         _buildBackground(),
-        _buildContentArea(context),
+        _buildContentArea(context, sizeConfig),
       ],
     );
   }
 
-  Widget _buildContentArea(BuildContext context) {
+  Widget _buildContentArea(BuildContext context, SizeConfig sizeConfig) {
     return SafeArea(
       child: Column(
         children: <Widget>[
-          _buildHeader(),
-          _buildSubHeader(),
-          Expanded(child: _buildContent(context))
+          _buildHeader(sizeConfig),
+          _buildSubHeader(sizeConfig),
+          _buildSourceCodeIcon(sizeConfig),
+          Expanded(child: _buildContent(context, sizeConfig))
         ],
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context) {
+  Widget _buildContent(BuildContext context, SizeConfig sizeConfig) {
     final bloc = BlocProvider.of<StarsRaceBloc>(context);
 
     return StreamBuilder<StarsRaceState>(
@@ -53,22 +61,19 @@ class HomePage extends StatelessWidget {
         }
 
         if (state.hasError) {
-          return Center(
-            child: Text('Error :/'),
-//            https://developer.github.com/v3/#rate-limiting
-          );
+          return _buildErrorInfo();
         }
 
         return CustomScrollView(
           slivers: <Widget>[
             SliverToBoxAdapter(
-              child: _buildLabel('Winners:'),
+              child: _buildLabel(sizeConfig, 'Winners:'),
             ),
             _buildWinners(state.winners),
             SliverToBoxAdapter(
-              child: _buildLabel('Others:'),
+              child: _buildLabel(sizeConfig, 'Others:'),
             ),
-            _buildOthers(state.others),
+            _buildOthers(sizeConfig, state.others),
           ],
         );
       },
@@ -87,16 +92,25 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(SizeConfig sizeConfig) {
     return Container(
       color: Colors.transparent,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Expanded(
-            child: _buildLabel(
-              'Built with S2 and Flutter Web by Julio Bitencourt',
-            ),
+          _buildLabel(
+            sizeConfig,
+            'Built with ',
           ),
+          Icon(
+            CustomIcons.heart,
+            size: sizeConfig.dynamicScaleSize(16),
+            color: Colors.red,
+          ),
+          _buildLabel(
+            sizeConfig,
+            ' and Flutter Web by Julio Bitencourt',
+          )
         ],
       ),
     );
@@ -114,7 +128,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(SizeConfig sizeConfig) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -125,7 +139,7 @@ class HomePage extends StatelessWidget {
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
-                fontSize: 40,
+                fontSize: sizeConfig.dynamicScaleSize(40),
               ),
               textAlign: TextAlign.center,
             ),
@@ -135,7 +149,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildSubHeader() {
+  Widget _buildSubHeader(SizeConfig sizeConfig) {
     return Row(
       children: <Widget>[
         Expanded(
@@ -143,12 +157,33 @@ class HomePage extends StatelessWidget {
             'of the main cross platform mobile techs',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 20,
+              fontSize: sizeConfig.dynamicScaleSize(20),
             ),
             textAlign: TextAlign.center,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSourceCodeIcon(SizeConfig sizeConfig) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          InkWell(
+            onTap: () {
+              launchURL('https://github.com/JHBitencourt/stars_race');
+            },
+            child: Icon(
+              CustomIcons.github,
+              size: sizeConfig.dynamicScaleSize(26),
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -183,7 +218,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildOthers(List<RepoInfo> others) {
+  Widget _buildOthers(SizeConfig sizeConfig, List<RepoInfo> others) {
     final cards = <CardRepo>[];
     for (var i = 0; i < others.length; i++) {
       cards.add(
@@ -193,6 +228,7 @@ class HomePage extends StatelessWidget {
         ),
       );
     }
+
     return SliverLayoutBuilder(
       builder: (BuildContext context, SliverConstraints constraints) {
         final boxConstraints = constraints.asBoxConstraints();
@@ -201,7 +237,7 @@ class HomePage extends StatelessWidget {
         final crossAxisCount = _crossAxisBasedOnWidth(width);
 
         double padding = 8;
-        if(width > 816) {
+        if (width > 816) {
           padding += (width - 816) / 2;
         }
         return SliverPadding(
@@ -209,8 +245,8 @@ class HomePage extends StatelessWidget {
           sliver: SliverGrid(
             delegate: SliverChildListDelegate(cards),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisSpacing: 2,
-              mainAxisSpacing: 2,
+              crossAxisSpacing: sizeConfig.dynamicScaleSize(4),
+              mainAxisSpacing: sizeConfig.dynamicScaleSize(4),
               childAspectRatio: 1,
               crossAxisCount: crossAxisCount,
             ),
@@ -221,22 +257,48 @@ class HomePage extends StatelessWidget {
   }
 
   int _crossAxisBasedOnWidth(double width) {
-    if(width < 200) return 2;
-    if(width < 400) return 3;
-    if(width < 600) return 4;
+    if (width <= 360) return 2;
+    if (width <= 560) return 3;
+    if (width <= 760) return 4;
     return 5;
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(SizeConfig sizeConfig, String text) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(
         text,
         textAlign: TextAlign.center,
         style: TextStyle(
-            color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          color: Colors.white,
+          fontSize: sizeConfig.dynamicScaleSize(16),
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 
+  Widget _buildErrorInfo() {
+    return Center(
+      child: RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          style: TextStyle(color: Colors.white),
+          children: [
+            TextSpan(text: 'Error sending the request..\n'),
+            TextSpan(
+                text: 'Seems like the Github API limit has been reached.\n'),
+            TextSpan(
+              text: 'See more.',
+              style: TextStyle(fontWeight: FontWeight.bold),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  launchURL('https://developer.github.com/v3/#rate-limiting');
+                },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

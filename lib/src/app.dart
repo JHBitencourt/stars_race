@@ -8,6 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Stars Race',
       theme:
       ThemeData(primarySwatch: Colors.blue, fontFamily: 'MaxwellRegular'),

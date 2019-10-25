@@ -12,8 +12,9 @@ dependencies:
 
   cupertino_icons: ^0.1.2
   http: ^0.12.0+2
-  rxdart: ^0.22.1
+  rxdart: ^0.22.4
   flare_flutter: ^1.6.2
+  url_launcher: ^5.2.4
 
 dev_dependencies:
   flutter_test:
@@ -32,6 +33,9 @@ flutter:
         - asset: assets/fonts/MaxwellRegular.ttf
         - asset: assets/fonts/MaxwellBold.ttf
           weight: 700
+    - family:  CustomIcons
+      fonts:
+        - asset: assets/fonts/CustomIcons.ttf
 
   assets:
     - assets/flare/starsRace.flr

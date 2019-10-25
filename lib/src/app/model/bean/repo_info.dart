@@ -9,12 +9,14 @@ class RepoInfo {
   @JsonKey(name: 'full_name')
   final String fullName;
 
-  @JsonKey(name: 'html_url')
+  @JsonKey(name: 'html_url', defaultValue: '')
   final String url;
+
+  @JsonKey(defaultValue: '')
+  final String homepage;
 
   final String name;
   final String description;
-  final String homepage;
   final String language;
 
   @JsonKey(name: 'stargazers_count')

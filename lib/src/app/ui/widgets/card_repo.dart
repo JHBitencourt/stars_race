@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:stars_race/src/app/model/bean/repo_info.dart';
 import 'package:stars_race/src/app/model/core/utils/colors.dart';
+import 'package:stars_race/src/app/ui/widgets/custom_dialog.dart';
+import 'package:stars_race/src/app/ui/widgets/utils/custom_icons.dart';
+import 'package:stars_race/src/app/ui/widgets/utils/size_config.dart';
+import 'package:stars_race/src/app/ui/widgets/utils/url_utils.dart';
 
 class CardRepo extends StatelessWidget {
   final int position;
@@ -11,10 +15,12 @@ class CardRepo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sizeConfig = SizeConfig.of(context);
+
     Widget content = Stack(
       children: <Widget>[
-        _buildContent(),
-        _buildPosition(),
+        _buildContent(sizeConfig),
+        _buildPosition(sizeConfig),
       ],
     );
 
@@ -27,7 +33,7 @@ class CardRepo extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        _showDialog(context);
+        _showDialog(context, sizeConfig);
       },
       child: Card(
         child: content,
@@ -35,14 +41,14 @@ class CardRepo extends StatelessWidget {
     );
   }
 
-  Widget _buildPosition() {
+  Widget _buildPosition(SizeConfig sizeConfig) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(
         '$position',
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: 26,
+          fontSize: sizeConfig.dynamicScaleSize(20),
           color: Colors.green,
           fontFamily: 'Roboto',
         ),
@@ -50,32 +56,38 @@ class CardRepo extends StatelessWidget {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(SizeConfig sizeConfig) {
     return Center(
       child: Column(
         children: <Widget>[
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Image.asset('assets/imgs/${repoInfo.name}.png'),
-            ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(
-                Icons.star,
-                color: _colorByPosition(),
-                size: 26,
-              ),
-              Text(
-                '${repoInfo.stargazers}',
-                style: TextStyle(fontSize: 26),
-              ),
-            ],
-          )
+          _buildImageRepo(),
+          _buildStargazers(sizeConfig),
         ],
       ),
+    );
+  }
+
+  Widget _buildImageRepo([int flex = 1]) {
+    return Expanded(
+      flex: flex,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.asset('assets/imgs/${repoInfo.name}.png'),
+      ),
+    );
+  }
+
+  Widget _buildStargazers(SizeConfig sizeConfig) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Icon(
+          Icons.star,
+          color: _colorByPosition(),
+          size: sizeConfig.dynamicScaleSize(26),
+        ),
+        _buildTextDefault(sizeConfig, '${repoInfo.stargazers}', sizeConfig.dynamicScaleSize(26)),
+      ],
     );
   }
 
@@ -92,14 +104,82 @@ class CardRepo extends StatelessWidget {
     }
   }
 
-  void _showDialog(BuildContext context) {
+  void _showDialog(BuildContext context, SizeConfig sizeConfig) {
+    final header = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        _buildImageRepo(2),
+        Expanded(
+          flex: 3,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Flexible(child: _buildTextDefault(sizeConfig, '/${repoInfo.name}')),
+              SizedBox(height: 8),
+              Flexible(child: _buildTextDefault(sizeConfig, '${repoInfo.language}')),
+              SizedBox(height: 8),
+              Flexible(child: _buildStargazers(sizeConfig))
+            ],
+          ),
+        )
+      ],
+    );
+
+    final description = Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Flexible(child: _buildTextDefault(sizeConfig, '${repoInfo.description}')),
+        ],
+      ),
+    );
+
+    final iconsLauncher = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        if (repoInfo.homepage.isNotEmpty)
+          _buildIconLauncher(sizeConfig, CustomIcons.home, repoInfo.homepage),
+        if (repoInfo.homepage.isNotEmpty) SizedBox(width: 20),
+        _buildIconLauncher(sizeConfig, CustomIcons.github, repoInfo.url),
+      ],
+    );
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          content: Text('Hello'),
+        return CustomDialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              header,
+              description,
+              iconsLauncher,
+            ],
+          ),
         );
       },
     );
   }
+
+  Widget _buildTextDefault(SizeConfig sizeConfig, String text, [double fontSize = 16]) {
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      style: TextStyle(fontSize: sizeConfig.dynamicScaleSize(fontSize)),
+    );
+  }
+
+  Widget _buildIconLauncher(SizeConfig sizeConfig, IconData iconData, String url) {
+    return InkWell(
+      onTap: () {
+        launchURL(url);
+      },
+      child: Icon(
+        iconData,
+        size: sizeConfig.dynamicScaleSize(26),
+      ),
+    );
+  }
+
 }
