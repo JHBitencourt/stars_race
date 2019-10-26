@@ -11,8 +11,8 @@ class SizeConfig {
 
   double dynamicScaleSize(
     double size, {
-    double scaleFactorWeb = 1.6,
-    double scaleFactorTablet = 1.2,
+    double scaleFactorWeb = 1.2,
+    double scaleFactorTablet = 1.1,
     double scaleFactorMini = 0.8,
   }) {
     if (kIsWeb) return size * scaleFactorWeb;

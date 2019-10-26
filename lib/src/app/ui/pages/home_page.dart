@@ -3,12 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:stars_race/src/app/bloc/provider/bloc_provider.dart';
 import 'package:stars_race/src/app/bloc/stars_race_bloc.dart';
 import 'package:stars_race/src/app/model/bean/repo_info.dart';
 import 'package:stars_race/src/app/model/core/utils/colors.dart';
 import 'package:stars_race/src/app/ui/widgets/card_repo.dart';
+import 'package:stars_race/src/app/ui/widgets/ink_well_platform_aware.dart';
+import 'package:stars_race/src/app/ui/widgets/utils/hover_aware.dart';
 import 'package:stars_race/src/app/ui/widgets/utils/custom_icons.dart';
 import 'package:stars_race/src/app/ui/widgets/utils/size_config.dart';
 import 'package:stars_race/src/app/ui/widgets/utils/url_utils.dart';
@@ -100,16 +101,16 @@ class HomePage extends StatelessWidget {
         children: <Widget>[
           _buildLabel(
             sizeConfig,
-            'Built with ',
+            'Built with',
           ),
           Icon(
             CustomIcons.heart,
-            size: sizeConfig.dynamicScaleSize(16),
+            size: sizeConfig.dynamicScaleSize(14),
             color: Colors.red,
           ),
           _buildLabel(
             sizeConfig,
-            ' and Flutter Web by Julio Bitencourt',
+            'and Flutter Web by Julio Bitencourt',
           )
         ],
       ),
@@ -172,7 +173,7 @@ class HomePage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          InkWell(
+          InkWellPlatformAware(
             onTap: () {
               launchURL('https://github.com/JHBitencourt/stars_race');
             },

@@ -5,6 +5,7 @@ import 'package:stars_race/src/app/ui/widgets/custom_dialog.dart';
 import 'package:stars_race/src/app/ui/widgets/utils/custom_icons.dart';
 import 'package:stars_race/src/app/ui/widgets/utils/size_config.dart';
 import 'package:stars_race/src/app/ui/widgets/utils/url_utils.dart';
+import 'package:stars_race/src/app/ui/widgets/ink_well_platform_aware.dart';
 
 class CardRepo extends StatelessWidget {
   final int position;
@@ -86,7 +87,8 @@ class CardRepo extends StatelessWidget {
           color: _colorByPosition(),
           size: sizeConfig.dynamicScaleSize(26),
         ),
-        _buildTextDefault(sizeConfig, '${repoInfo.stargazers}', sizeConfig.dynamicScaleSize(26)),
+        _buildTextDefault(sizeConfig, '${repoInfo.stargazers}',
+            sizeConfig.dynamicScaleSize(26)),
       ],
     );
   }
@@ -114,9 +116,13 @@ class CardRepo extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Flexible(child: _buildTextDefault(sizeConfig, '/${repoInfo.name}')),
+              Flexible(
+                child: _buildTextDefault(sizeConfig, '/${repoInfo.name}'),
+              ),
               SizedBox(height: 8),
-              Flexible(child: _buildTextDefault(sizeConfig, '${repoInfo.language}')),
+              Flexible(
+                child: _buildTextDefault(sizeConfig, '${repoInfo.language}'),
+              ),
               SizedBox(height: 8),
               Flexible(child: _buildStargazers(sizeConfig))
             ],
@@ -130,7 +136,10 @@ class CardRepo extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Flexible(child: _buildTextDefault(sizeConfig, '${repoInfo.description}')),
+          Flexible(
+            child: _buildTextDefault(sizeConfig, '${repoInfo.description}'),
+          ),
+          SizedBox(height: 8)
         ],
       ),
     );
@@ -162,7 +171,8 @@ class CardRepo extends StatelessWidget {
     );
   }
 
-  Widget _buildTextDefault(SizeConfig sizeConfig, String text, [double fontSize = 16]) {
+  Widget _buildTextDefault(SizeConfig sizeConfig, String text,
+      [double fontSize = 16]) {
     return Text(
       text,
       textAlign: TextAlign.center,
@@ -170,8 +180,9 @@ class CardRepo extends StatelessWidget {
     );
   }
 
-  Widget _buildIconLauncher(SizeConfig sizeConfig, IconData iconData, String url) {
-    return InkWell(
+  Widget _buildIconLauncher(
+      SizeConfig sizeConfig, IconData iconData, String url) {
+    return InkWellPlatformAware(
       onTap: () {
         launchURL(url);
       },
@@ -181,5 +192,4 @@ class CardRepo extends StatelessWidget {
       ),
     );
   }
-
 }
