@@ -9,7 +9,6 @@ import 'package:stars_race/src/app/model/bean/repo_info.dart';
 import 'package:stars_race/src/app/model/core/utils/colors.dart';
 import 'package:stars_race/src/app/ui/widgets/card_repo.dart';
 import 'package:stars_race/src/app/ui/widgets/ink_well_platform_aware.dart';
-import 'package:stars_race/src/app/ui/widgets/utils/hover_aware.dart';
 import 'package:stars_race/src/app/ui/widgets/utils/custom_icons.dart';
 import 'package:stars_race/src/app/ui/widgets/utils/size_config.dart';
 import 'package:stars_race/src/app/ui/widgets/utils/url_utils.dart';
@@ -108,9 +107,11 @@ class HomePage extends StatelessWidget {
             size: sizeConfig.dynamicScaleSize(14),
             color: Colors.red,
           ),
-          _buildLabel(
-            sizeConfig,
-            'and Flutter Web by Julio Bitencourt',
+          Flexible(
+            child: _buildLabel(
+              sizeConfig,
+              'and Flutter (mobile, web and desktop) by Julio Bitencourt',
+            ),
           )
         ],
       ),
@@ -270,6 +271,7 @@ class HomePage extends StatelessWidget {
       child: Text(
         text,
         textAlign: TextAlign.center,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: Colors.white,
           fontSize: sizeConfig.dynamicScaleSize(16),
