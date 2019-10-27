@@ -7,7 +7,6 @@ void main()  {
   if(!kIsWeb && debugDefaultTargetPlatformOverride == null) {
     debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   }
-  print(debugDefaultTargetPlatformOverride);
 
   runApp(MyApp());
 }

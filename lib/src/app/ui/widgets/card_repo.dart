@@ -158,13 +158,15 @@ class CardRepo extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return CustomDialog(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              header,
-              description,
-              iconsLauncher,
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                header,
+                description,
+                iconsLauncher,
+              ],
+            ),
           ),
         );
       },
