@@ -19,6 +19,6 @@ An app running on mobile, web and desktop. How long do you think it will take fo
 
 ## To understand better:
 - [Flutter mobile, web and desktop — The stars race]()
-- [Flutter mobile, web e desktop — The stars race — ptBr]()
+- [Flutter mobile, web e desktop — The stars race — ptBr](https://medium.com/flutter-comunidade-br/flutter-mobile-web-e-desktop-the-stars-race-ptbr-310ef828ee35)
 
 Have you found it useful? Drop it a :star: :)
